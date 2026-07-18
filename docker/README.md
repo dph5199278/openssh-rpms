@@ -28,73 +28,49 @@ env ALL=1 ./pullsrc.sh
 
 Choose only the platforms you need and run the corresponding commands.
 
-### x86_64 Builds
+### Builds
 
-#### For EL5 (CentOS 5)
+#### Placeholder
+```bash
+# linux/386   :  x86 [only el5\el6\el7]
+# linux/amd64 :  x86_64
+# linux/arm64 :  aarch64 (ARM64) [above el6]
+# one of them 
+BUTILD_PLATFORM=linux/amd64
+# 5: el5
+# 6: el6
+# 7: el7
+# 8: el8
+# 9: el9
+BUILD_VERSION_NUM=5
+
+BUILD_MIRROR=0
+
+BUILD_TAG=elssh:el
+```
+
+#### For less than EL9 (CentOS Stream 9 / RHEL 9 / Rocky 9 / AlmaLinux 9)
 
 ```bash
+env DOCKERBUILD=1 ./pullsrc.sh
+# Include
+# EL5 (CentOS 5)
+# EL6 (CentOS 6)
+# EL7 (CentOS 7)
+# EL8 (CentOS 8 / RHEL 8 / Rocky 8 / AlmaLinux 8)
 # Build Docker image
-docker build -t elssh:el5 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=5 --build-arg MIRROR=0 .
+docker build -t $BUILD_TAG --platform $BUTILD_PLATFORM -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=$BUILD_VERSION_NUM --build-arg MIRROR=$BUILD_MIRROR .
 
-# Build 64-bit packages (recommended)
-docker run --rm -v .:/data -e "M32=0" elssh:el5
-
-# Build 32-bit packages (optional)
-docker run --rm -v .:/data -e "M32=1" elssh:el5
+# Build packages
+docker run --rm -v .:/data $BUILD_TAG
 ```
 
-#### For EL6 (CentOS 6)
+#### For greater than or equal to EL9 (CentOS Stream 9 / RHEL 9 / Rocky 9 / AlmaLinux 9)
 
 ```bash
-docker build -t elssh:el6 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=6 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el6
-```
-
-#### For EL7 (CentOS 7)
-
-```bash
-docker build -t elssh:el7 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=7 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el7
-```
-
-#### For EL8 (CentOS 8 / RHEL 8 / Rocky 8 / AlmaLinux 8)
-
-```bash
-docker build -t elssh:el8 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=8 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el8
-```
-
-#### For EL9 (CentOS Stream 9 / RHEL 9 / Rocky 9 / AlmaLinux 9)
-
-```bash
-docker build -t elssh:el9 -f ./docker/Dockerfile.centos-stream --build-arg VERSION_NUM=9 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el9
-```
-
-### aarch64 (ARM64) Builds
-
-#### For EL8 aarch64
-
-```bash
-docker build -t elssh_aarch64:el8 \
-  --platform linux/arm64 \
-  -f ./docker/Dockerfile.centos-stream \
-  --build-arg VERSION_NUM=8 \
-  --build-arg MIRROR=0 .
-
-docker run --rm -v .:/data --platform linux/arm64 elssh_aarch64:el8
-```
-
-#### For EL9 aarch64
-
-```bash
-docker build -t elssh_aarch64:el9 \
-  --platform linux/arm64 \
-  -f ./docker/Dockerfile.centos-stream \
-  --build-arg VERSION_NUM=9 \
-  --build-arg MIRROR=0 .
-
-docker run --rm -v .:/data --platform linux/arm64 elssh_aarch64:el9
+env DOCKERBUILD=1 ./pullsrc.sh
+docker build -t $BUILD_TAG --platform $BUTILD_PLATFORM -f ./docker/Dockerfile.centos-stream --build-arg VERSION_NUM=$BUILD_VERSION_NUM --build-arg MIRROR=$BUILD_MIRROR .
+docker run --rm -v .:/data $BUILD_TAG
 ```
 
 ## Build Arguments
@@ -103,7 +79,6 @@ docker run --rm -v .:/data --platform linux/arm64 elssh_aarch64:el9
 |-------------------|--------|-----------|
 | `MIRROR`    | 0 or 1 | Set to `1` if you are in China and want to use faster domestic mirrors |
 | `VERSION_NUM`     | 6,7,8,9| Specifies the target EL version (used in most Dockerfiles) |
-| `M32` (EL5 only)  | 0 or 1 | `0` = 64-bit, `1` = 32-bit |
 
 **Example for users in China:**
 
@@ -122,40 +97,13 @@ Typical output structure:
 ```
 output/
 ├── el5/
-│   ├── x86_64/
-│   └── i686/          # only if M32=1
 ├── el6/
 ├── el7/
 ├── el8/
 ├── el9/
-├── el8-aarch64/
-└── el9-aarch64/
 ```
 
 Each subdirectory contains the generated `.rpm` files (including debuginfo if available).
-
-## Quick Start Examples
-
-### Build only for modern systems (EL8 + EL9)
-
-```bash
-env ALL=1 ./pullsrc.sh
-
-docker build -t elssh:el8 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=8 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el8
-
-docker build -t elssh:el9 -f ./docker/Dockerfile.centos-stream --build-arg VERSION_NUM=9 --build-arg MIRROR=0 .
-docker run --rm -v .:/data elssh:el9
-```
-
-### Build only for ARM64
-
-```bash
-env ALL=1 ./pullsrc.sh
-
-docker build -t elssh_aarch64:el9 --platform linux/arm64 -f ./docker/Dockerfile.centos-stream --build-arg VERSION_NUM=9 --build-arg MIRROR=0 .
-docker run --rm -v .:/data --platform linux/arm64 elssh_aarch64:el9
-```
 
 ## Troubleshooting
 
