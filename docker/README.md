@@ -34,7 +34,7 @@ Choose only the platforms you need and run the corresponding commands.
 
 ```bash
 # Build Docker image
-docker build -t elssh:el5 -f ./docker/Dockerfile.centos5 --build-arg MIRROR=0 .
+docker build -t elssh:el5 -f ./docker/Dockerfile.centos --build-arg VERSION_NUM=5 --build-arg MIRROR=0 .
 
 # Build 64-bit packages (recommended)
 docker run --rm -v .:/data -e "M32=0" elssh:el5
