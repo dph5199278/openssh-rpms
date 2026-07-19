@@ -46,6 +46,10 @@ jobs:
             el: "7"
             platforms: linux/386
             arch: i686
+          - tag: el7
+            el: "7"
+            platforms: linux/arm/v7
+            arch: armv7hl
           - tag: el6
             el: "6"
             platforms: linux/amd64
