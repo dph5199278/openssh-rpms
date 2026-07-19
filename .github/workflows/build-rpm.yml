@@ -42,10 +42,18 @@ jobs:
             el: "7"
             platforms: linux/arm64
             arch: aarch64
+          - tag: el7
+            el: "7"
+            platforms: linux/386
+            arch: i686
           - tag: el6
             el: "6"
             platforms: linux/amd64
             arch: x86_64
+          - tag: el6
+            el: "6"
+            platforms: linux/386
+            arch: i686
           - tag: el5
             el: "5"
             platforms: linux/amd64

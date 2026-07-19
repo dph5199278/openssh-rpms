@@ -263,9 +263,6 @@ tar xfz %{SOURCE3} --strip-components=1 -C openssl
 pushd openssl
 
 ./config \
-%ifarch %{ix86}
-	linux-x86 \
-%endif
 	no-dgram no-tests shared zlib -fPIC
 make %{?_smp_mflags}
 popd
@@ -305,9 +302,6 @@ export LD_LIBRARY_PATH="%{openssl_dir}"
 %endif
 
 %configure \
-%ifarch %{ix86}
-	--host=i686-linux-gnu \
-%endif
 	--sysconfdir=%{_sysconfdir}/ssh \
 	--libexecdir=%{_libexecdir}/openssh \
 	--datadir=%{_datadir}/openssh \

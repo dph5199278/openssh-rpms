@@ -24,13 +24,13 @@ jobs:
               MIRROR=0
           - tag_suffix: el6
             dockerfile: ./docker/Dockerfile.centos
-            platforms: linux/amd64
+            platforms: linux/amd64,linux/i386
             build_args: |
               VERSION_NUM=6
               MIRROR=0
           - tag_suffix: el7
             dockerfile: ./docker/Dockerfile.centos
-            platforms: linux/amd64,linux/arm64
+            platforms: linux/amd64,linux/arm64,linux/i386
             build_args: |
               VERSION_NUM=7
               MIRROR=0
