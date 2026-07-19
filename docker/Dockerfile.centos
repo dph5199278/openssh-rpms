@@ -30,16 +30,17 @@ RUN export MIRROR="$MIRROR" && \
 
 FROM base AS builder
 
-COPY ./downloads/perl* /data/
+COPY ./downloads/* /data/
 
-RUN PERL_OPT=""; \
-    if [ "$VERSION_NUM" = "5" ]; then \
-        PERL_OPT="-Dcc=gcc44"; \
-    fi && \
-    mkdir -p perl && tar xfz perl-*.tar.gz --strip-components=1 -C perl && pushd perl && \
-	./Configure -des -Dusethreads -Uuseshrplib -Uoptimize=-g $PERL_OPT -Dprefix=/usr/local/perl && \
-	make $(rpm --eval %{?_smp_mflags}) && make install_strip
-RUN rm -rf perl-*.tar.gz perl
+RUN if [ "$VERSION_NUM" = "5" ]; then \
+        mkdir -p perl && tar xfz perl-*.tar.gz --strip-components=1 -C perl && pushd perl && \
+        ./Configure -des -Dusethreads -Uuseshrplib -Uoptimize=-g -Dcc=gcc44 -Dprefix=/usr/local/perl && \
+        make $(rpm --eval %{?_smp_mflags}) && make install_strip && \
+        rm -rf perl-*.tar.gz perl; \
+    else \
+        mkdir -p /usr/local/perl/bin; \
+    fi
+RUN 
 
 FROM base
 
