@@ -18,14 +18,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - tag: aarch64_el7
-            el: "7"
-            arch: aarch64
-          - tag: aarch64_el8
-            el: "8"
-            arch: aarch64
-          - tag: aarch64_el9
+          - tag: el9
             el: "9"
+            platforms: linux/arm64
+            arch: aarch64
+          - tag: el8
+            el: "8"
+            platforms: linux/arm64
+            arch: aarch64
+          - tag: el7
+            el: "7"
+            platforms: linux/arm64
             arch: aarch64
 
     steps:
@@ -61,7 +64,7 @@ jobs:
 
       - name: Run ${{ matrix.tag }}
         run: |
-          docker run --rm \
+          docker run --platform ${{ matrix.platforms }} --rm \
             -v $(pwd):/data \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}
 
@@ -81,71 +84,35 @@ jobs:
       matrix:
         include:
           - tag: el9
+            platforms: linux/amd64
             el: "9"
             arch: x86_64
           - tag: el8
+            platforms: linux/amd64
             el: "8"
             arch: x86_64
           - tag: el7
+            platforms: linux/amd64
             el: "7"
             arch: x86_64
+          - tag: el7
+            platforms: linux/386
+            el: "7"
+            arch: i686
           - tag: el6
+            platforms: linux/amd64
             el: "6"
             arch: x86_64
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Run pullsrc.sh
-        run: ./pullsrc.sh
-
-      - name: Generate version-local.env
-        run: |
-          TAG=${{ github.ref_name }}
-          BUILD_NUM=$(echo "$TAG" | grep -oE 'b[0-9]+' | tail -1)
-          if [ -z "$BUILD_NUM" ]; then
-            BUILD_NUM="b1"
-          fi
-          echo "WITH_OPENSSL=2" > version-local.env
-          echo "PKGREL=$BUILD_NUM" >> version-local.env
-          cat version-local.env
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run ${{ matrix.tag }}
-        run: |
-          docker run --rm \
-            -v $(pwd):/data \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}
-
-      - name: Upload RPM artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: rpm-el${{ matrix.el }}-${{ matrix.arch }}
-          path: output/*.rpm
-          if-no-files-found: ignore
-
-  build-el5:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-    strategy:
-      matrix:
-        include:
-          - m32: "0"
+          - tag: el6
+            platforms: linux/386
+            el: "6"
+            arch: i686
+          - tag: el5
+            platforms: linux/amd64
             el: "5"
             arch: x86_64
-          - m32: "1"
+          - tag: el5
+            platforms: linux/386
             el: "5"
             arch: i686
 
@@ -177,22 +144,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run el5 with M32=${{ matrix.m32 }}
+      - name: Run ${{ matrix.tag }}
         run: |
-          docker run --rm \
+          docker run --platform ${{ matrix.platforms }} --rm \
             -v $(pwd):/data \
-            -e "M32=${{ matrix.m32 }}" \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:el5
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}
 
       - name: Upload RPM artifacts
         uses: actions/upload-artifact@v7
         with:
           name: rpm-el${{ matrix.el }}-${{ matrix.arch }}
           path: output/*.rpm
-          if-no-files-found: error
+          if-no-files-found: ignore
 
   release:
-    needs: [build-arm64, build-amd64, build-el5]
+    needs: [build-arm64, build-amd64]
     runs-on: ubuntu-latest
     permissions:
       contents: write

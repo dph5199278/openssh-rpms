@@ -1,20 +1,22 @@
 ARG VERSION_NUM="7"
-FROM centos:$VERSION_NUM
+FROM dph5199278/centos:$VERSION_NUM AS base
 ARG VERSION_NUM
 ARG MIRROR=0
+ARG TARGETARCH
 LABEL Author="Rex Zhou <zrx879582094@gmail.com>"
 
 WORKDIR /data
 
 # Copy all files
-COPY ./docker/ /data/docker/
+COPY ./docker/*.sh /data/docker/
+
+SHELL ["/entrypoint.sh"]
 
 RUN export MIRROR="$MIRROR" && \
     bash ./docker/modify_yum_source.sh && \
     if [ "$VERSION_NUM" = "8" ]; then \
         yum install -y perl perl-IPC-Cmd perl-Time-Piece systemd-devel openssl-devel && \
-        yum install -y 'dnf-command(config-manager)' && \
-        yum config-manager --set-enabled powertools; \
+        yum install -y 'dnf-command(config-manager)' ; \
     elif [ "$VERSION_NUM" = "7" ]; then \
         yum install -y systemd-devel perl perl-IPC-Cmd perl-Time-Piece ;\
     elif [ "$VERSION_NUM" = "6" ]; then \
@@ -25,5 +27,24 @@ RUN export MIRROR="$MIRROR" && \
     yum install -y wget autoconf automake gcc make rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel e2fsprogs-devel && \
     yum clean all && \
     rm -rfv /data/
+
+FROM base AS builder
+
+COPY ./downloads/perl* /data/
+
+RUN PERL_OPT=""; \
+    if [ "$VERSION_NUM" = "5" ]; then \
+        PERL_OPT="-Dcc=gcc44"; \
+    fi && \
+    mkdir -p perl && tar xfz perl-*.tar.gz --strip-components=1 -C perl && pushd perl && \
+	./Configure -des -Dusethreads -Uuseshrplib -Uoptimize=-g $PERL_OPT -Dprefix=/usr/local/perl && \
+	make $(rpm --eval %{?_smp_mflags}) && make install_strip
+RUN rm -rf perl-*.tar.gz perl
+
+FROM base
+
+ENV PATH=/usr/local/perl/bin:$PATH
+
+COPY --from=builder /usr/local/perl /usr/local/perl
 
 CMD ["./docker/docker_compile.sh"]

@@ -140,12 +140,6 @@ BUILD_RPM() {
         install -v -m666 $__dir/downloads/$fn ./SOURCES/
     done
 
-    if [[ ${M32:-0} != 0 ]]; then
-        local SETARCH="setarch i386"
-        RPMBUILDOPTS+=('--target' i686)
-        export CFLAGS="${CFLAGS:-} -m32" LDFLAGS="${LDFLAGS:-} -m32"
-    fi
-
     ${SETARCH:-} \
     rpmbuild -bb ./SPECS/${SPECFILE:-openssh.spec} "${RPMBUILDOPTS[@]}"
     
