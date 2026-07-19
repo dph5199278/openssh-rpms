@@ -30,7 +30,7 @@ jobs:
               MIRROR=0
           - tag_suffix: el7
             dockerfile: ./docker/Dockerfile.centos
-            platforms: linux/amd64,linux/arm64,linux/i386
+            platforms: linux/amd64,linux/arm64,linux/i386,linux/arm/v7
             build_args: |
               VERSION_NUM=7
               MIRROR=0
