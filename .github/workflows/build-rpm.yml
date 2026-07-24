@@ -74,9 +74,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Run pullsrc.sh
-        run: env ALL=1 ./pullsrc.sh
-
       - name: Generate version-local.env
         run: |
           TAG=${{ github.ref_name }}
@@ -101,7 +98,7 @@ jobs:
       - name: Run ${{ matrix.tag }}
         run: |
           docker run --platform ${{ matrix.platforms }} --rm \
-            -v $(pwd):/data \
+            -v $(pwd)/version-local.env:/data/version-local.env \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}
 
       - name: Upload RPM artifacts

@@ -27,11 +27,37 @@ RUN export MIRROR="$MIRROR" && \
     yum install -y wget autoconf automake gcc make rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel e2fsprogs-devel && \
     yum clean all
 
+FROM alpine:3.24 AS pre-wget
+
+WORKDIR /data
+
+RUN apk add --no-cache \
+    wget \
+    ca-certificates \
+    build-base \
+    autoconf \
+    automake \
+    libtool \
+    openssl-dev \
+    zlib-dev
+
+RUN wget https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz && \
+    tar xfz wget-1.25.0.tar.gz && \
+    cd wget-1.25.0 && \
+    ./configure --with-ssl=openssl --enable-static --disable-shared && \
+    make && \
+    cp src/wget /data/wget && \
+    cd .. && \
+    rm -rf wget-1.25.0 wget-1.25.0.tar.gz
+
 FROM base AS builder
 
 COPY ./downloads/* /data/
+COPY --from=pre-wget /data/wget /usr/bin/wget
 
 RUN if [ "$VERSION_NUM" = "5" ]; then \
+        export DOCKERBUILD=1 && \
+        ./pullsrc.sh && \
         mkdir -p perl && tar xfz perl-*.tar.gz --strip-components=1 -C perl && pushd perl && \
         ./Configure -des -Dusethreads -Uuseshrplib -Uoptimize=-g -Dcc=gcc44 -Dprefix=/usr/local/perl && \
         make $(rpm --eval %{?_smp_mflags}) && make install_strip && \
@@ -43,8 +69,9 @@ RUN
 
 FROM base
 
-ENV PATH=/usr/local/perl/bin:$PATH
+ENV PATH=/usr/local/perl/bin:/usr/local/bin:$PATH
 
+COPY --from=pre-wget /data/wget /usr/local/bin/wget
 COPY --from=builder /usr/local/perl /usr/local/perl
 
 CMD ["./docker/docker_compile.sh"]
