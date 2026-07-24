@@ -68,7 +68,6 @@ docker run --rm -v .:/data $BUILD_TAG
 #### For greater than or equal to EL9 (CentOS Stream 9 / RHEL 9 / Rocky 9 / AlmaLinux 9)
 
 ```bash
-env DOCKERBUILD=1 ./pullsrc.sh
 docker build -t $BUILD_TAG --platform $BUTILD_PLATFORM -f ./docker/Dockerfile.centos-stream --build-arg VERSION_NUM=$BUILD_VERSION_NUM --build-arg MIRROR=$BUILD_MIRROR .
 docker run --rm -v .:/data $BUILD_TAG
 ```
