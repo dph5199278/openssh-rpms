@@ -8,7 +8,7 @@ LABEL Author="Rex Zhou <zrx879582094@gmail.com>"
 WORKDIR /data
 
 # Copy all files
-COPY ./docker/ /data/docker/
+COPY . /data/
 
 # CentOS 8 stream had NO valid mirrors.
 RUN if [ "$VERSION_NUM" = "8" ]; then \

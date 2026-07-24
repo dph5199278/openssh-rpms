@@ -8,7 +8,7 @@ LABEL Author="Rex Zhou <zrx879582094@gmail.com>"
 WORKDIR /data
 
 # Copy all files
-COPY ./docker/*.sh /data/docker/
+COPY . /data/
 
 SHELL ["/entrypoint.sh"]
 
@@ -25,8 +25,7 @@ RUN export MIRROR="$MIRROR" && \
         yum install -y gcc44; \
     fi && \
     yum install -y wget autoconf automake gcc make rpm-build pam-devel krb5-devel zlib-devel libXt-devel libX11-devel gtk2-devel e2fsprogs-devel && \
-    yum clean all && \
-    rm -rfv /data/
+    yum clean all
 
 FROM base AS builder
 
