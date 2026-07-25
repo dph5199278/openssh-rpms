@@ -18,4 +18,5 @@ fi
 
 [[ $ELDIR == el8 ]] && ELDIR=el7
 cp -r $ELDIR $DOCKER_BUILD_DIR
+./pullsrc.sh
 ./compile.sh $DOCKER_BUILD_DIR/$ELDIR
