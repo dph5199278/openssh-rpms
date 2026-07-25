@@ -17,4 +17,5 @@ if [[ ${WITH_OPENSSL+x} == "" ]]; then
 fi
 
 cp -r $ELDIR $DOCKER_BUILD_DIR
+./pullsrc.sh
 ./compile.sh $DOCKER_BUILD_DIR/$ELDIR

@@ -54,11 +54,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Pull Sources for CentOS 5
-        if: matrix.tag_suffix == 'el5'
-        run: |
-          env DOCKERBUILD=1 ./pullsrc.sh
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
 

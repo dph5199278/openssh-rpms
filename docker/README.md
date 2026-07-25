@@ -13,18 +13,9 @@ All built RPM packages will be automatically placed in the `./output/` directory
 - Sufficient disk space (~10 GB+ recommended)
 - Internet connection
 
-## Step 1: Download Sources
-
-You must download the source code and tarballs before building:
-
-```bash
-# Download all required sources
-env ALL=1 ./pullsrc.sh
-```
-
 > **Note**: Run this command only once before starting any builds. It prepares all necessary files for every supported platform.
 
-## Step 2: Building RPMs for Specific Platforms
+## Building RPMs for Specific Platforms
 
 Choose only the platforms you need and run the corresponding commands.
 
@@ -52,7 +43,6 @@ BUILD_TAG=elssh:el
 #### For less than EL9 (CentOS Stream 9 / RHEL 9 / Rocky 9 / AlmaLinux 9)
 
 ```bash
-env DOCKERBUILD=1 ./pullsrc.sh
 # Include
 # EL5 (CentOS 5)
 # EL6 (CentOS 6)
